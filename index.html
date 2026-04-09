@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
-
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Interview">
@@ -98,25 +94,23 @@
     opacity: 1;
   }
 </style>
-</head>
-<body>
 
+<body>
 <h1 id="title">Click on a box.</h1>
 
 <div class="grid-container" id="grid">
-  <div class="box" onclick="startInterview(1)">1</div>
-  <div class="box" onclick="startInterview(2)">2</div>
-  <div class="box" onclick="startInterview(3)">3</div>
-  <div class="box" onclick="startInterview(4)">4</div>
-  <div class="box" onclick="startInterview(5)">5</div>
-  <div class="box" onclick="startInterview(6)">6</div>
-  <div class="box" onclick="startInterview(7)">7</div>
-  <div class="box" onclick="startInterview(8)">8</div>
-  <div class="box" onclick="startInterview(9)">9</div>
-  <div class="box" onclick="startInterview(10)">10</div>
+<div class="box" onclick="startInterview(event, 1)">1</div>
+<div class="box" onclick="startInterview(event, 2)">2</div>
+<div class="box" onclick="startInterview(event, 3)">3</div>
+<div class="box" onclick="startInterview(event, 4)">4</div>
+<div class="box" onclick="startInterview(event, 5)">5</div>
+<div class="box" onclick="startInterview(event, 6)">6</div>
+<div class="box" onclick="startInterview(event, 7)">7</div>
+<div class="box" onclick="startInterview(event, 8)">8</div>
+<div class="box" onclick="startInterview(event, 9)">9</div>
+<div class="box" onclick="startInterview(event, 10)">10</div>
 </div>
 
-<!-- INTERVIEW UI -->
 <div id="interviewScreen">
   <div class="chat" id="chat"></div>
 </div>
@@ -357,49 +351,56 @@ const dialogues = {
 let currentDialogue = [];
 let index = 0;
 let showingAnswer = false;
+let firstClickDone = false;
+let firstAnswerShown = false; // NEW
 
-function startInterview(boxNumber) {
+function startInterview(e, boxNumber) {
+  e.stopPropagation(); // prevent double trigger
+
   currentDialogue = dialogues[boxNumber];
   index = 0;
   showingAnswer = false;
+  firstClickDone = false;
+  firstAnswerShown = false; // reset
 
   document.getElementById("grid").style.display = "none";
   document.getElementById("title").style.display = "none";
   document.getElementById("interviewScreen").style.display = "block";
 
   document.getElementById("chat").innerHTML = "";
-  showNext();
+
+  // Show ONLY first question (no scroll)
+  const chat = document.getElementById("chat");
+  const row = document.createElement("div");
+  row.className = "row question message";
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.innerText = currentDialogue[index].q;
+
+  row.appendChild(bubble);
+  chat.appendChild(row);
+
+  setTimeout(() => row.classList.add("show"), 50);
+
+  showingAnswer = true;
+  firstClickDone = true;
 }
 
 function showNext() {
+  if (!firstClickDone) return;
+
   const chat = document.getElementById("chat");
 
-  // Reset to grid after last answer
-  if (index >= currentDialogue.length && !showingAnswer) {
+  if (index >= currentDialogue.length) {
     document.getElementById("interviewScreen").style.display = "none";
     document.getElementById("grid").style.display = "grid";
     document.getElementById("title").style.display = "block";
     return;
   }
 
-  if (index >= currentDialogue.length) return;
-
-  if (!showingAnswer) {
-    const row = document.createElement("div");
-    row.className = "row question message";
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.innerText = currentDialogue[index].q;
-
-    row.appendChild(bubble);
-    chat.appendChild(row);
-
-    setTimeout(() => row.classList.add("show"), 50);
-
-    showingAnswer = true;
-
-  } else {
+  if (showingAnswer) {
+    // SHOW ANSWER
     const row = document.createElement("div");
     row.className = "row answer message";
 
@@ -412,14 +413,40 @@ function showNext() {
 
     setTimeout(() => row.classList.add("show"), 50);
 
+    // ONLY scroll on FIRST answer
+    if (!firstAnswerShown) {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      firstAnswerShown = true;
+    } else {
+      // normal scroll after
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+
     showingAnswer = false;
     index++;
-  }
+  } else {
+    // SHOW NEXT QUESTION
+    if (index < currentDialogue.length) {
+      const row = document.createElement("div");
+      row.className = "row question message";
 
-  window.scrollTo({
-    top: document.body.scrollHeight,
-    behavior: "smooth"
-  });
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.innerText = currentDialogue[index].q;
+
+      row.appendChild(bubble);
+      chat.appendChild(row);
+
+      setTimeout(() => row.classList.add("show"), 50);
+
+      showingAnswer = true;
+
+      // scroll normally for questions AFTER first answer
+      if (firstAnswerShown) {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      }
+    }
+  }
 }
 
 document.body.addEventListener("click", function() {
