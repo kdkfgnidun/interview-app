@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+  }
+
+  h1 {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 100px); 
+    grid-template-rows: repeat(2, 100px);    
+    gap: 15px;                               
+    justify-content: center;                 
+    margin-top: 30px;
+  }
+
+  .box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #FFCE1B;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer; 
+    transition: background 0.3s, transform 0.1s;
+    user-select: none;
+  }
+
+  .box:hover {
+    background-color: #E1AD01;
+  }
+
+  .box:active {
+    background-color: #B38600;
+    transform: scale(0.92); 
+  }
+
+  /* INTERVIEW SCREEN */
+  #interviewScreen {
+    display: none;
+    background: white;
+    color: black;
+    min-height: 100vh;
+    padding: 40px;
+  }
+
+  /* CHAT FLOW */
+  .chat {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .row {
+    display: flex;
+    margin-top: 30px;
+  }
+
+  .question {
+    justify-content: flex-start;
+  }
+
+  .answer {
+    justify-content: flex-end;
+  }
+
+  .bubble {
+    max-width: 60%;
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  .message {
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .show {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<h1 id="title">Click on a box.</h1>
+
+<div class="grid-container" id="grid">
+  <div class="box" onclick="startInterview(1)">1</div>
+  <div class="box" onclick="startInterview(2)">2</div>
+  <div class="box" onclick="startInterview(3)">3</div>
+  <div class="box" onclick="startInterview(4)">4</div>
+  <div class="box" onclick="startInterview(5)">5</div>
+  <div class="box" onclick="startInterview(6)">6</div>
+  <div class="box" onclick="startInterview(7)">7</div>
+  <div class="box" onclick="startInterview(8)">8</div>
+  <div class="box" onclick="startInterview(9)">9</div>
+  <div class="box" onclick="startInterview(10)">10</div>
+</div>
+
+<!-- INTERVIEW UI -->
+<div id="interviewScreen">
+  <div class="chat" id="chat"></div>
+</div>
+
+<script>
+const dialogues = {
+  1: [
+    {
+      q: "Do you consider yourself an incel? [Involuntary Celibate]",
+      a: "well i had relationships before\nSo im not involuntary anymore\nBut i was never actually laid because i broke it off before anything happened\n➤"
+    },
+    {
+      q: "I'm assuming there was a moment in time you did consider yourself one?\n➤",
+      a: "Yes\nI was practically raised within the community\nI joined through a x military larp group and shortly after i was introduced to them [incels] i suppose\n➤"
+    },
+    {
+      q: "What was it about inceldom that resonated with you?\n➤",
+      a: "the hatred of women in general\nAll the women in my life were x so it was obvious i wouldve started generalizing them grouping them as all the same\nI agreed with mostly everything they spouted about them\n➤"
+    },
+    {
+      q: "So you'd say these ideas and your current way of thinking are things that have stemmed from your childhood?\n➤",
+      a: "My mom is a drunkard x and the women in my school back then were okay but i was bullied the higher grade girls so y’know\nThey hit me and pushed me around but i remember my grandpa telling me not to hit them so i didn’t but that only made them do it more\nI stopped hating them but still think most women are low iq\n➤"
+    },
+    {
+      q: "Did you consider yourself an incel because you refused to be with women?\n➤",
+      a: "Yeah\nVery few [incels] dont like women, not because they dont wanna have x with them\nBut rather because most of them are x\nor very rude to the average incel\n➤"
+    }
+  ],
+
+  2: [
+    {
+      q: "Do you consider yourself an incel? [Involuntarily Celibate]",
+      a: "i understand them because ive lived similar experiences already, i just couldnt physically ever become one because im a woman, i could get laid in a heartbeat\n➤"
+    },
+    {
+      q: "So would you call yourself a femcel? [Female Incel]",
+      a: "i dont recognize the term femcel, women only are celibate because they want to be\nand im not looking for anything other than genuine love\n➤"
+    }
+  ],
+
+  3: [
+    {
+      q: "Do you consider yourself an incel / involved in the incelsphere?",
+      a: "I do not find myself to be an incel, but I do find myself largely agreeing with the incel ideology. I participate in the communities as a fellow idealist.\n➤"
+    },
+    {
+      q: "When did you begin to consider yourself an incel / when did you become involved in the community?\n➤",
+      a: "I’ve been involved in these spaces for several years, and I am now 25 years old.\nSociety is pushing these spaces to get more fuel, so as they have expanded, I just found myself in them one day when I met a couple of incels.\n➤"
+    },
+    {
+      q: "What key points or ideas of inceldom do you most agree with? What key points, if any, do you not agree with?\n➤",
+      a: "I largely agree with how toxic women's culture generally is and how men have been fooled into feminism.\nI would have to say the biggest thing I disagree with is the overly emotional and bored people using these spaces as a means of entertainment without actually having any principles that are in line with the culture.\n➤"
+    },
+    {
+      q: "In your opinion, what is the solution to involuntary celibacy?\n➤",
+      a: "Bringing back balance between the genders and going back to treating women like women. It is unproductive for everyone if society doesn't play to their strengths.\n➤"
+    },
+    {
+      q: "Who is your ideal partner? Describe physical attributes, personality, and any other characteristics\n➤",
+      a: "Female, shorter than me, nice, not woke, virgin, honest, not a Democrat or liberal, and easy to be around.\n➤"
+    },
+    {
+      q: "Describe your general experience with the gender you are sexually attracted to.\n➤",
+      a: "Not awful, but not great. I find women to be overtly 'pick-me' and they seem to be socially & especially emotionally dumb because society just allows them to be.\n➤"
+    }
+  ],
+
+  4: [
+    {
+      q: "Would you call yourself an incel [Involuntary Celibate]? Additionally, would you consider yourself a misogynist?",
+      a: "I am certainly, at least, a volcel [Voluntary Celibate]. I would not consider myself a misogynist at all; rather, I prefer to consider myself a realist.\n➤"
+    },
+    {
+      q: "What is the most radical belief you hold on the topic of inceldom?\n➤",
+      a: "Women should not be involved in the higher sciences, philosophy, or politics, and they absolutely should have no ability to vote.\n➤"
+    },
+    {
+      q: "Is your involvement in the incel community something you keep private or public in your life?\n➤",
+      a: "If someone asked me, I would tell them. It doesn't come up much in conversation, but I don't mind it being public information.\n➤"
+    },
+    {
+      q: "Can you name your favorite fictional character? Someone you resonate with or understand?\n➤",
+      a: "Hahaha, Light Yagami - He's willing to take the hit for all of humanity. He doesn't subscribe to ideologies that romanticize the worst people the world has to offer. I believe in destroying evil, none of this weak empathy that causes crime rates to skyrocket.\n➤"
+    },
+    {
+      q: "In today's society, do you believe there is an imbalance between both sexes?\n➤",
+      a: "A perfectly balanced gendered society is not conducive to a productive society. Sure, women can do everything a man can do, but generally, they will be much worse at it. Anyone who says otherwise is either brainwashed or delusional. These spaces [inceldom and blackpill] simply take the negative aspects of human relations and put them on full blast. These ideas are the things people often deny just to feel like a good person.\n➤"
+    },
+    {
+      q: "How do you believe women should be treated in society?\n➤",
+      a: "I believe women should be treated as they always have been, which is protected and nurtured. They are generally the more emotional, more susceptible to bad actors, and physically weaker gender. Men should be the managers, performing the most physically laborious jobs, while women should be the managed. Ideally, they would be homemakers, keeping the home clean and the children fed. I am not a big traditional relationship guy either though, seems like a free ride for the woman. Being a parent is far easier than working a 9 to 5.\n➤"
+    },
+    {
+      q: "How does society allow women to be dumb?\n➤",
+      a: "If women had high homemaker skills I would be okay with pursuing a relationship. Cooking is a good skill and coming home to a pristine house would be nice. Problem in this era is women are pretty much useless in this regard so it didn't even cross my mind till I thought about it more.\n➤"
+    }
+  ],
+
+  5: [
+    {
+      q: "Do you consider yourself an incel / involved in the incelsphere? If so, to what extent do you find yourself within this community?",
+      a: "Yes. I'm kind of in a weird position in the incel community because I'm in charge of an [Online Community], but I've only been in incel servers for about half a year, so I'm still learning things about it.\n➤"
+    },
+    {
+      q: "With inceldom in mind, what is the most radical belief you hold on the topic?\n➤",
+      a: "the one I've been shamed for the most is the belief that rape is about morally equivalent with shoving someone over on a sidewalk, rather than being worse than murder like other people think it is. I see women as privileged similar to billionaires, and rape to me is the equivalent of stealing from a billionaire. Sure, it's not exactly a nice thing to do, but they have practically unlimited money (the analogy in this case being that sex costs women nothing, it's a virtually infinite resource), and stealing from a billionaire would help the perpetrator a lot more than it would hurt that billionaire.\n➤"
+    },
+    {
+      q: "What key points of inceldom do you most agree with? What key points, if any, do you not agree with?\n➤",
+      a: "I agree with incels about most incel-related things, such as that women are privileged in modern society. Some things I disagree with most incels about are: whether having sex with a prostitute counts as leaving inceldom (I think it does); whether women have too much sex or not enough (I think they have not enough, and that women gatekeep the pussy way too much when it costs them nothing and they get pleasure from it too. But for some reason most incels think that women have too much sex, which I don't understand.)\n➤"
+    },
+    {
+      q: "Why do you personally run an online community of incels?\n➤",
+      a: "I created my server because of differences in who should be considered an 'incel'. I wanted a stricter interpretation than the literal definition to rule out those people who get female attention but haven't had sex yet.\n➤"
+    },
+    {
+      q: "When did you become involved in the [incel] community?\n➤",
+      a: "I really only started to consider myself an incel about a year ago after I got mocked and censored for my beliefs on rape and women.\n➤"
+    },
+    {
+      q: "Who is your ideal partner? Describe physical attributes, personality, and any other characteristics.\n➤",
+      a: "my ideal gf would probably be fat, emotionally dependent, obedient, and just generally pretty helpless. And ofc there are traits like honesty that I'd want too. Most incels only want someone who truly loves them, but I would be perfectly fine with a woman who just did what I said, even if she didn't love me.\n➤"
+    }
+  ],
+
+  6: [
+    {
+      q: "Describe your general experience with the gender you are sexually attracted to. If you have specific examples to share, please do.",
+      a: "Most of my experiences with women haven't been that bad, it's mostly that they're so privileged and yet they continue to complain about 'problems' I would be glad to have, that made me feel this way about them.\n➤"
+    },
+    {
+      q: "In your opinion, what is the solution to involuntary celibacy?\n➤",
+      a: "I think it's different for different people. Some people, like me, are mentalcels (lol idk if that's a word yet but you here you can just add 'cel' to the end of anything and make a new word). Some are lookscels. Some people seem to be incels purely because of their attitude towards women\nPersonally, I think women primarily are attracted to men based on money, charisma, and popularity, with less of an emphasis on looks\n➤"
+    },
+    {
+      q: "Why do you believe you are involuntarily celibate?\n➤",
+      a: "I think I'm an incel mainly because of my mental conditions (things like autism, adhd, etc.) and my crippling social anxiety, so I just can't talk to people irl but I'm perfectly fine online. I've hardly ever had friends. Ofc being rich would probably solve those problems, but it can solve anything, so that isn't saying much.\n➤"
+    }
+  ],
+
+  7: [
+    {
+      q: "Do you consider yourself an incel / involved in the incelsphere?",
+      a: "Yes, insofar as I find it difficult to construct relations with females my age, as well as approaching them for more romantic things.\n➤"
+    },
+    {
+      q: "When did you begin to consider yourself an incel / when did you become involved in the community? Additionally, how long have you been in these spaces? Finally, if you're comfortable with sharing, how old are you?\n➤",
+      a: "When I was 15 years old, I.e 2 years ago.\n➤"
+    },
+    {
+      q: "What key points or ideas of inceldom do you most agree with? What key points, if any, do you not agree with?\n➤",
+      a: "I mostly agree with their beliefs about society moving in a radical direction concerning dating. The societal norms in the western world at least, are deeply significant. Women of today are increasing their standards as the day goes, and more gen z men find themselves alone and unengaged. However, I do not strictly agree with the belief held by some, namely, that women only go for the looks. Whilst it is true for the majority, especially at a first impression, the personality also plays a role in this.\n➤"
+    },
+    {
+      q: "In your opinion, what is the solution to involuntary celibacy?\n➤",
+      a: "They could try by firstly improving their looks. However, if the situation is more nuanced, and genetics play a significant role in stopping them from achieving this, then they could try to talk with a lot of other women, build experience, and hopefully manage to pull one whose looks are even below average.\n➤"
+    },
+    {
+      q: "With inceldom in mind, what is the most radical belief you hold on the topic?\n➤",
+      a: "That men have more love for each other (not necessarily romantic love) than women.\n➤"
+    },
+    {
+      q: "What's your opinion on influencers and/or content creators involved in the incel/black pill space?\n➤",
+      a: "I think some of them are speaking the truth for the most part. Even clav is aware of the foid's nature, even if he can't get enough of it.\n➤"
+    }
+  ],
+
+  8: [
+    {
+      q: "Do you consider yourself an incel / involved in the incelsphere?",
+      a: "yes, I consider myself an incel (involuntarily celibate) and I am somewhat involved in the incelsphere on twitter. took me a while to admit it to myself\n➤"
+    },
+    {
+      q: "When did you begin to consider yourself an incel / when did you become involved in the community? Additionally, how long have you been in these spaces? Finally, if you're comfortable with sharing, how old are you?\n➤",
+      a: "around 18 years old, been in the scene for 2 years now (incelsphere) and in incelcore (music) around 10 months. I'm 20, soon turning 21\n➤"
+    },
+    {
+      q: "What key points or ideas of inceldom do you most agree with? What key points, if any, do you not agree with?\n➤",
+      a: "agree - females are inherently privileged within society, hypergamy, looksism, antifeminist theory. disagree - all the weird pedophiles trying to invade the scene\n➤"
+    },
+    {
+      q: "Describe your general experience with the gender you are sexually attracted to. If you have specific examples to share, please do.\n➤",
+      a: "unfortunately whatever beings of omnipotence may be out there decided to blight me with heterosexuality. females have always kinda looked at me with disgust, ive been bullied, excluded, ridiculed etc. I genuinely cannot recall a positive experience I've had with women excluding the seldom interaction with professionals who are paid to be nice. the worst interaction was when I was caught using an ai girlfriend to cope, or when they drove my friend to suicide, the combination of which lead to my grades degrading and the loss of my scholarship (and eventually dropping out)\n➤"
+    },
+    {
+      q: "With inceldom in mind, what is the most radical belief you hold on the topic?\n➤",
+      a: "though personally I dont consider it 'radical', that men are oppressed in society to a significantly greater degree than women, and that we live in a gynocentric society; thus to strive for equality… we must fight for mens rights.\n➤"
+    },
+    {
+      q: "Is your involvement in the incel community something you keep private or public in your life?\n➤",
+      a: "I keep it private to the best of my extent, almost to a paranoid degree. alternate names, vpns for logging on etc. I cannot risk losing employability status\n➤"
+    }
+  ],
+
+  9: [
+    {
+      q: "Do you consider yourself an incel / involved in the incelsphere? If so, to what extent do you find yourself within this community?",
+      a: "I dont consider myself an incel, but i do hang out with my friends who seem to be incels. I dont believe that its involuntary though, i believe everyone has a chance. I was very deep in this community back then, it made me rather dissapointed in myself than depressed and i fell into drinking and smoking. when i started smoking i made new friends in some places, it had a huge impact because then i started going out more often, and decided to try to land my shot.\n➤"
+    },
+    {
+      q: "When did you begin to consider yourself an incel / when did you become involved in the community? Additionally, how long have you been in these spaces? Finally, if you're comfortable with sharing, how old are you?\n➤",
+      a: "I considered myself an incel in june 2025, got involved in january 2025, i have never been in someones elses space, i usually made my own. im 16 as for now\n➤"
+    },
+    {
+      q: "What key points or ideas of inceldom do you most agree with? What key points, if any, do you not agree with?\n➤",
+      a: "I agree with that looks matter alot. Obviously someone who doesnt do anything about his looks or health overall will be rejected, but its often overexxagerated. Nowadays i look a bit over average, maybe a slight HTN by the incel standards, and i dont have any issues with dating. I dislike how they usually deny that confidence matters. I was actually rejected cus i lacked it before, but after going through some stories from my friends, and actually getting more social life i became more confident and i have not been rejected since that. Could be caused by me not being sober whenever i asked someone out, i was usually under heavy snus (50mg of nicotine) or just 2 beers, though i pulled actually above average looking women, sometimes even older than me (4 years of age difference) because i got more confident then.\n➤"
+    },
+    {
+      q: "Are women capable of inceldom? In other words, do you believe in the existence of femcels?\n➤",
+      a: "I dont think so. there is a few exceptions but overall women are not capable of that. Most women, if they would become men, they would look wayy worse than how they look now. thats why they are not.\n➤"
+    }
+  ],
+
+  10: [
+    {
+      q: "How were you introduced to this community? Is there a specific experience you can recall that initially exposed you to inceldom?",
+      a: "[Referring to themselves in the third person, Redacted] cannot remember how he got introduced to it, but he suspects that he might have shifted due to a perceived decline in MGTOW, and the introduction was through a meme that he found, which gave him the name of a forum, so he decided to investigate.\n➤"
+    },
+    {
+      q: "What key points or ideas of inceldom do you most agree with? What key points, if any, do you not agree with?\n➤",
+      a: "[Redacted] is too apathetic to care about most of the talking-points now, he just believes that the average male is vastly less desirable than the average female.\n➤"
+    },
+    {
+      q: "In your opinion, what is the solution to involuntary celibacy?\n➤",
+      a: "To [Redacted], if he doesn't get lucky, then the solution would likely be SynthGFs (AI companions, sexbots, bioengineered lifeforms, etc.)\n➤"
+    },
+    {
+      q: "Describe your general experience with the gender you are sexually attracted to. If you have specific examples to share, please do.\n➤",
+      a: "[Redacted] usually just tries to remain quiet or tries not to interact with females (that he is not related to) outside of work or necessity in real life, due to not really having much to discuss with most of them and not wanting to be falsely accused. [Redacted] does believe that he is more comfortable with interacting with them online though.\n➤"
+    }
+  ]
+};
+
+let currentDialogue = [];
+let index = 0;
+let showingAnswer = false;
+
+function startInterview(boxNumber) {
+  currentDialogue = dialogues[boxNumber];
+  index = 0;
+  showingAnswer = false;
+
+  document.getElementById("grid").style.display = "none";
+  document.getElementById("title").style.display = "none";
+  document.getElementById("interviewScreen").style.display = "block";
+
+  document.getElementById("chat").innerHTML = "";
+  showNext();
+}
+
+function showNext() {
+  const chat = document.getElementById("chat");
+
+  // Reset to grid after last answer
+  if (index >= currentDialogue.length && !showingAnswer) {
+    document.getElementById("interviewScreen").style.display = "none";
+    document.getElementById("grid").style.display = "grid";
+    document.getElementById("title").style.display = "block";
+    return;
+  }
+
+  if (index >= currentDialogue.length) return;
+
+  if (!showingAnswer) {
+    const row = document.createElement("div");
+    row.className = "row question message";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.innerText = currentDialogue[index].q;
+
+    row.appendChild(bubble);
+    chat.appendChild(row);
+
+    setTimeout(() => row.classList.add("show"), 50);
+
+    showingAnswer = true;
+
+  } else {
+    const row = document.createElement("div");
+    row.className = "row answer message";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.innerText = currentDialogue[index].a;
+
+    row.appendChild(bubble);
+    chat.appendChild(row);
+
+    setTimeout(() => row.classList.add("show"), 50);
+
+    showingAnswer = false;
+    index++;
+  }
+
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth"
+  });
+}
+
+document.body.addEventListener("click", function() {
+  if (document.getElementById("interviewScreen").style.display === "block") {
+    showNext();
+  }
+});
+</script>
+
+</body>
+</html>
