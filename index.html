@@ -9,23 +9,26 @@
 <link rel="apple-touch-icon" href="icon.png">
 
 <style>
-  body {
+  html, body {
     margin: 0;
+    padding: 0;
+    height: 100%;
     font-family: sans-serif;
   }
 
-  h1 {
-    text-align: center;
-    margin-top: 40px;
-  }
-
+  /* =========================
+     GRID MENU (MAIN SCREEN)
+  ========================= */
   .grid-container {
     display: grid;
-    grid-template-columns: repeat(5, 100px); 
-    grid-template-rows: repeat(2, 100px);    
-    gap: 15px;                               
-    justify-content: center;                 
-    margin-top: 30px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 12px;
+    height: 100vh;
+    width: 100vw;
+    padding: 12px;
+    box-sizing: border-box;
+    background: white;
   }
 
   .box {
@@ -34,11 +37,11 @@
     align-items: center;
     background-color: #FFCE1B;
     color: white;
-    font-size: 24px;
+    font-size: 40px;
     font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer; 
-    transition: background 0.3s, transform 0.1s;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.3s ease;
     user-select: none;
   }
 
@@ -47,11 +50,13 @@
   }
 
   .box:active {
+    transform: scale(0.95);
     background-color: #B38600;
-    transform: scale(0.92); 
   }
 
-  /* INTERVIEW SCREEN */
+  /* =========================
+     INTERVIEW SCREEN
+  ========================= */
   #interviewScreen {
     display: none;
     background: white;
@@ -60,7 +65,6 @@
     padding: 40px;
   }
 
-  /* CHAT FLOW */
   .chat {
     max-width: 800px;
     margin: 0 auto;
@@ -94,7 +98,7 @@
     opacity: 1;
   }
 
-/* BACK BUTTON */
+  /* BACK BUTTON */
   #backBtn {
     position: fixed;
     top: 20px;
@@ -107,12 +111,6 @@
     color: white;
     cursor: pointer;
     z-index: 999;
-    transition: transform 0.15s ease, background 0.2s ease;
-  }
-
-  #backBtn:hover {
-    background: black;
-    transform: scale(1.05);
   }
 
   #backBtn:active {
@@ -121,19 +119,18 @@
 </style>
 
 <body>
-<h1 id="title">Click on a box.</h1>
 
 <div class="grid-container" id="grid">
-<div class="box" onclick="startInterview(event, 1)">1</div>
-<div class="box" onclick="startInterview(event, 2)">2</div>
-<div class="box" onclick="startInterview(event, 3)">3</div>
-<div class="box" onclick="startInterview(event, 4)">4</div>
-<div class="box" onclick="startInterview(event, 5)">5</div>
-<div class="box" onclick="startInterview(event, 6)">6</div>
-<div class="box" onclick="startInterview(event, 7)">7</div>
-<div class="box" onclick="startInterview(event, 8)">8</div>
-<div class="box" onclick="startInterview(event, 9)">9</div>
-<div class="box" onclick="startInterview(event, 10)">10</div>
+  <div class="box" onclick="startInterview(event, 1)">1</div>
+  <div class="box" onclick="startInterview(event, 2)">2</div>
+  <div class="box" onclick="startInterview(event, 3)">3</div>
+  <div class="box" onclick="startInterview(event, 4)">4</div>
+  <div class="box" onclick="startInterview(event, 5)">5</div>
+  <div class="box" onclick="startInterview(event, 6)">6</div>
+  <div class="box" onclick="startInterview(event, 7)">7</div>
+  <div class="box" onclick="startInterview(event, 8)">8</div>
+  <div class="box" onclick="startInterview(event, 9)">9</div>
+  <div class="box" onclick="startInterview(event, 10)">10</div>
 </div>
 
 <div id="interviewScreen">
@@ -154,7 +151,7 @@ let currentAudio = null;
 function playAudio(src) {
   if (!src) return;
 
-  stopAudio(); // always kill previous audio first
+  stopAudio();
 
   currentAudio = new Audio(src);
   currentAudio.play();
@@ -169,7 +166,7 @@ function stopAudio() {
 }
 
 const dialogues = {
-  1: [
+ 1: [
     {
       q: "Do you consider yourself an incel? [Involuntary Celibate]\n➤",
       a: "well i had relationships before\nSo im not involuntary anymore\nBut i was never actually laid because i broke it off before anything happened\n➤",
@@ -508,7 +505,7 @@ let firstClickDone = false;
 function startInterview(e, boxNumber) {
   e.stopPropagation();
 
-  stopAudio(); // prevents overlap from previous session
+  stopAudio();
 
   currentDialogue = dialogues[boxNumber];
   index = 0;
@@ -516,7 +513,6 @@ function startInterview(e, boxNumber) {
   firstClickDone = false;
 
   document.getElementById("grid").style.display = "none";
-  document.getElementById("title").style.display = "none";
   document.getElementById("interviewScreen").style.display = "block";
 
   document.getElementById("chat").innerHTML = "";
@@ -542,7 +538,7 @@ function startInterview(e, boxNumber) {
 }
 
 /* =========================
-   FLOW CONTROL
+   FLOW
 ========================= */
 function showNext() {
   if (!firstClickDone) return;
@@ -550,12 +546,10 @@ function showNext() {
   const chat = document.getElementById("chat");
 
   if (index >= currentDialogue.length) {
-    stopAudio(); // FINAL SAFETY STOP
+    stopAudio();
 
     document.getElementById("interviewScreen").style.display = "none";
     document.getElementById("grid").style.display = "grid";
-    document.getElementById("title").style.display = "block";
-
     return;
   }
 
@@ -573,8 +567,6 @@ function showNext() {
     setTimeout(() => row.classList.add("show"), 50);
 
     playAudio(currentDialogue[index].aAudio);
-
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 
     showingAnswer = false;
     index++;
@@ -595,8 +587,6 @@ function showNext() {
     playAudio(currentDialogue[index].qAudio);
 
     showingAnswer = true;
-
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   }
 }
 
@@ -612,14 +602,12 @@ function goBack() {
   firstClickDone = false;
 
   document.getElementById("chat").innerHTML = "";
-
   document.getElementById("interviewScreen").style.display = "none";
   document.getElementById("grid").style.display = "grid";
-  document.getElementById("title").style.display = "block";
 }
 
 /* =========================
-   TAP CONTROL
+   TAP TO ADVANCE
 ========================= */
 document.body.addEventListener("click", function() {
   if (document.getElementById("interviewScreen").style.display === "block") {
