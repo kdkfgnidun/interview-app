@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html>
+<head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -9,160 +11,111 @@
 <link rel="apple-touch-icon" href="icon.png">
 
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    font-family: sans-serif;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: sans-serif;
+}
 
-  /* =========================
-     GRID MENU (MAIN SCREEN)
-  ========================= */
-  .grid-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    gap: 12px;
-    height: 100vh;
-    width: 100vw;
-    padding: 12px;
-    box-sizing: border-box;
-    background: white;
-  }
+/* GRID */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 12px;
+  height: 100vh;
+  padding: 12px;
+  box-sizing: border-box;
+}
 
-  .box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #FFCE1B;
-    color: white;
-    font-size: 40px;
-    font-weight: bold;
-    border-radius: 14px;
-    cursor: pointer;
-    transition: transform 0.1s ease, background 0.3s ease;
-    user-select: none;
-  }
+.box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #FFCE1B;
+  color: white;
+  font-size: 40px;
+  border-radius: 14px;
+  cursor: pointer;
+}
 
-  .box:hover {
-    background-color: #E1AD01;
-  }
+/* INTERVIEW */
+#interviewScreen {
+  display: none;
+  height: 100vh;
+  padding: 40px 20px;
+  box-sizing: border-box;
+}
 
-  .box:active {
-    transform: scale(0.95);
-    background-color: #B38600;
-  }
+/* SCROLL FIX */
+.chat {
+  max-width: 800px;
+  margin: 0 auto;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
 
-  /* =========================
-     INTERVIEW SCREEN
-  ========================= */
-  #interviewScreen {
-    display: none;
-    background: white;
-    color: black;
-    min-height: 100vh;
-    padding: 40px;
-  }
+/* CHAT */
+.row {
+  display: flex;
+  margin-top: 30px;
+}
 
-  .chat {
-    max-width: 800px;
-    margin: 0 auto;
-  }
+.question { justify-content: flex-start; }
+.answer { justify-content: flex-end; }
 
-  .row {
-    display: flex;
-    margin-top: 30px;
-  }
+.bubble {
+  max-width: 60%;
+  font-size: 20px;
+}
 
-  .question {
-    justify-content: flex-start;
-  }
+.message {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
 
-  .answer {
-    justify-content: flex-end;
-  }
+.show { opacity: 1; }
 
-  .bubble {
-    max-width: 60%;
-    font-size: 20px;
-    line-height: 1.5;
-  }
-
-  .message {
-    opacity: 0;
-    transition: opacity 1s ease;
-  }
-
-  .show {
-    opacity: 1;
-  }
-
-  /* BACK BUTTON */
-  #backBtn {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    padding: 10px 14px;
-    font-size: 16px;
-    border: none;
-    border-radius: 10px;
-    background: rgba(0,0,0,0.85);
-    color: white;
-    cursor: pointer;
-    z-index: 999;
-  }
-
-  #backBtn:active {
-    transform: scale(0.95);
-  }
+/* BACK */
+#backBtn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: black;
+  color: white;
+  border: none;
+  padding: 10px;
+}
 </style>
 
+</head>
 <body>
 
 <div class="grid-container" id="grid">
-  <div class="box" onclick="startInterview(event, 1)">1</div>
-  <div class="box" onclick="startInterview(event, 2)">2</div>
-  <div class="box" onclick="startInterview(event, 3)">3</div>
-  <div class="box" onclick="startInterview(event, 4)">4</div>
-  <div class="box" onclick="startInterview(event, 5)">5</div>
-  <div class="box" onclick="startInterview(event, 6)">6</div>
-  <div class="box" onclick="startInterview(event, 7)">7</div>
-  <div class="box" onclick="startInterview(event, 8)">8</div>
-  <div class="box" onclick="startInterview(event, 9)">9</div>
-  <div class="box" onclick="startInterview(event, 10)">10</div>
+  <div class="box" data-id="1">1</div>
+  <div class="box" data-id="2">2</div>
+  <div class="box" data-id="3">3</div>
+  <div class="box" data-id="4">4</div>
+  <div class="box" data-id="5">5</div>
+  <div class="box" data-id="6">6</div>
+  <div class="box" data-id="7">7</div>
+  <div class="box" data-id="8">8</div>
+  <div class="box" data-id="9">9</div>
+  <div class="box" data-id="10">10</div>
 </div>
 
 <div id="interviewScreen">
-  <button id="backBtn" onclick="goBack()">←</button>
+  <button id="backBtn">←</button>
   <div class="chat" id="chat"></div>
 </div>
 
 <script>
+
+/* REGISTER SERVICE WORKER */
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
-}
-
-/* =========================
-   AUDIO SYSTEM
-========================= */
-let currentAudio = null;
-
-function playAudio(src) {
-  if (!src) return;
-
-  stopAudio();
-
-  currentAudio = new Audio(src);
-  currentAudio.play();
-}
-
-function stopAudio() {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    currentAudio = null;
-  }
 }
 
 const dialogues = {
@@ -491,129 +444,118 @@ aAudio: "https://dl.dropbox.com/scl/fi/20z3950a1stlb2ftg8z76/10.8.mp3?rlkey=y1dd
   ]
 };
 
-/* =========================
-   STATE
-========================= */
+/* AUDIO */
+let currentAudio = null;
+
+function playAudio(src) {
+  if (!src) return;
+  stopAudio();
+  currentAudio = new Audio(src);
+  currentAudio.play();
+}
+
+function stopAudio() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+}
+
+/* STATE */
 let currentDialogue = [];
 let index = 0;
 let showingAnswer = false;
-let firstClickDone = false;
 
-/* =========================
-   START INTERVIEW
-========================= */
-function startInterview(e, boxNumber) {
-  e.stopPropagation();
-
+/* START */
+function startInterview(id) {
   stopAudio();
 
-  currentDialogue = dialogues[boxNumber];
+  currentDialogue = dialogues[id];
   index = 0;
-  showingAnswer = false;
-  firstClickDone = false;
+  showingAnswer = true;
 
-  document.getElementById("grid").style.display = "none";
-  document.getElementById("interviewScreen").style.display = "block";
+  grid.style.display = "none";
+  interviewScreen.style.display = "block";
+  chat.innerHTML = "";
 
-  document.getElementById("chat").innerHTML = "";
+  addMessage("question", currentDialogue[index].q);
+  playAudio(currentDialogue[index].qAudio);
+}
 
-  const chat = document.getElementById("chat");
-
+/* ADD MESSAGE */
+function addMessage(type, text) {
   const row = document.createElement("div");
-  row.className = "row question message";
+  row.className = "row " + type + " message";
 
   const bubble = document.createElement("div");
   bubble.className = "bubble";
-  bubble.innerText = currentDialogue[index].q;
+  bubble.innerText = text;
 
   row.appendChild(bubble);
   chat.appendChild(row);
 
-  setTimeout(() => row.classList.add("show"), 50);
+  setTimeout(() => {
+    row.classList.add("show");
 
-  playAudio(currentDialogue[index].qAudio);
+    row.scrollIntoView({
+      behavior: "smooth",
+      block: "end"
+    });
 
-  showingAnswer = true;
-  firstClickDone = true;
+  }, 50);
 }
 
-/* =========================
-   FLOW
-========================= */
+/* FLOW */
 function showNext() {
-  if (!firstClickDone) return;
-
-  const chat = document.getElementById("chat");
-
   if (index >= currentDialogue.length) {
-    stopAudio();
-
-    document.getElementById("interviewScreen").style.display = "none";
-    document.getElementById("grid").style.display = "grid";
+    goBack();
     return;
   }
 
   if (showingAnswer) {
-    const row = document.createElement("div");
-    row.className = "row answer message";
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.innerText = currentDialogue[index].a;
-
-    row.appendChild(bubble);
-    chat.appendChild(row);
-
-    setTimeout(() => row.classList.add("show"), 50);
-
+    addMessage("answer", currentDialogue[index].a);
     playAudio(currentDialogue[index].aAudio);
 
     showingAnswer = false;
     index++;
-
   } else {
-    const row = document.createElement("div");
-    row.className = "row question message";
+    if (index >= currentDialogue.length) return;
 
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.innerText = currentDialogue[index].q;
-
-    row.appendChild(bubble);
-    chat.appendChild(row);
-
-    setTimeout(() => row.classList.add("show"), 50);
-
+    addMessage("question", currentDialogue[index].q);
     playAudio(currentDialogue[index].qAudio);
 
     showingAnswer = true;
   }
 }
 
-/* =========================
-   BACK BUTTON RESET
-========================= */
+/* BACK */
 function goBack() {
   stopAudio();
-
-  currentDialogue = [];
-  index = 0;
-  showingAnswer = false;
-  firstClickDone = false;
-
-  document.getElementById("chat").innerHTML = "";
-  document.getElementById("interviewScreen").style.display = "none";
-  document.getElementById("grid").style.display = "grid";
+  chat.innerHTML = "";
+  interviewScreen.style.display = "none";
+  grid.style.display = "grid";
 }
 
-/* =========================
-   TAP TO ADVANCE
-========================= */
-document.body.addEventListener("click", function() {
-  if (document.getElementById("interviewScreen").style.display === "block") {
+/* EVENTS */
+document.querySelectorAll(".box").forEach(box => {
+  box.addEventListener("click", e => {
+    e.stopPropagation();
+    startInterview(box.dataset.id);
+  });
+});
+
+backBtn.addEventListener("click", e => {
+  e.stopPropagation();
+  goBack();
+});
+
+document.body.addEventListener("click", () => {
+  if (interviewScreen.style.display === "block") {
     showNext();
   }
 });
+
 </script>
 
 </body>
